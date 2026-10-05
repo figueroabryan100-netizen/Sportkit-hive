@@ -1,38 +1,61 @@
-import { $, $$, esc, chrome, catalog, leagues, renderCards, gear3d, thumbHTML, hydrateThumbs } from "/js/app.js?v=6";
+import { api, post, toast, esc, num, openDrawer, closeDrawer, busy, confirmBox } from './ui.js?v=6';
 
-await chrome();
-const lgs = (await leagues()).filter((l) => l.count);
-const lgCard = (l) => `<a class="lg" href="/league.html?l=${l.key}" style="--a:${l.colors[0]};--b:${l.colors[1]};--c:${l.colors[2]}"><small>${esc(l.sport)} · ${esc(l.region)}</small><b>${esc(l.name)}</b><span>${esc(l.tagline)}</span><span style="margin-top:6px;font-weight:800">${l.count} designs &rarr;</span></a>`;
+let root, sports = ['Soccer', 'Basketball', 'Football', 'Baseball', 'Hockey', 'Volleyball', 'Training', 'Multi sport'];
 
-if ($("#lg-index")) {
-  const sports = ["All", ...new Set(lgs.map((l) => l.sport))];
-  $("#lg-sports").innerHTML = sports.map((x, i) => `<button class="chip${i ? "" : " on"}" data-sp="${esc(x)}">${esc(x)}</button>`).join("");
-  const draw = (sp) => ($("#lg-index").innerHTML = lgs.filter((l) => sp === "All" || l.sport === sp).map(lgCard).join(""));
-  $("#lg-sports").addEventListener("click", (e) => { const b = e.target.closest("[data-sp]"); if (!b) return; $$("#lg-sports .chip").forEach((x) => x.classList.toggle("on", x === b)); draw(b.dataset.sp); });
-  draw("All");
+export async function mount(el) {
+  root = el;
+  el.innerHTML = `<header class="page-head"><div><h1>Leagues</h1><p class="muted">League collections group your kits by style of competition. They are your own original collections.</p></div>
+    <div class="head-actions"><button class="btn btn-primary" id="lg-new">Add league</button></div></header>
+    <div id="lg-list" class="league-grid"></div>`;
+  el.querySelector('#lg-new').addEventListener('click', () => edit(null));
+  await load();
+}
+export function unmount() { root = null; }
+
+let leagues = [];
+async function load() {
+  leagues = (await api('/api/admin/leagues')).leagues;
+  if (!root) return;
+  root.querySelector('#lg-list').innerHTML = leagues.length ? leagues.map((l) => `<article class="card league-card">
+      <div class="league-colors" aria-hidden="true">${l.colors.map((c) => `<span style="background:${esc(c)}"></span>`).join('')}</div>
+      <div class="league-body"><h2>${esc(l.name)}</h2><p class="muted small">${esc(l.sport)}${l.region ? ', ' + esc(l.region) : ''}. ${num(l.count)} live products</p>
+      <p class="small">${esc(l.tagline)}</p></div>
+      <div class="row-gap"><button class="btn btn-sm" data-edit="${esc(l.key)}">Edit</button><a class="btn btn-sm btn-ghost" href="#/products/league:${encodeURIComponent(l.key)}">See products</a></div></article>`).join('')
+    : '<div class="empty"><p>No leagues yet.</p></div>';
+  root.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => edit(leagues.find((l) => l.key === b.dataset.edit))));
 }
 
-if ($("#lg-grid")) {
-  const key = new URLSearchParams(location.search).get("l");
-  const l = lgs.find((x) => x.key === key);
-  if (!l) { location.replace("/leagues.html"); throw 0; }
-  document.title = `${l.name} collection | SquadForge`;
-  const ban = $("#lg-banner");
-  ban.style.cssText = `--a:${l.colors[0]};--b:${l.colors[1]};--c:${l.colors[2]}`;
-  $("#lg-meta").textContent = `${l.sport} · ${l.region}`;
-  $("#lg-name").textContent = l.name;
-  $("#lg-tag").textContent = l.tagline;
-  const items = (await catalog()).filter((p) => p.league === key);
-  $("#lg-count").textContent = `${items.length} designs in this collection`;
-  const hero = items.find((p) => p.category === "Jerseys") || items[0];
-  $("#lg-team").href = `/design.html?p=${encodeURIComponent(hero.slug)}&team=1`;
-  gear3d().then((m) => {
-    if (m?.supported?.()) m.mount($("#lg-pic"), hero.design, { interactive: true, motion: true, autoRotate: true });
-    else { $("#lg-pic").innerHTML = thumbHTML(hero.design, hero.name, 600); hydrateThumbs($("#lg-pic")); }
+function edit(l) {
+  const isNew = !l;
+  l = l || { key: '', name: '', sport: 'Soccer', region: '', tagline: '', colors: ['#04282e', '#c8f53c', '#ffffff'] };
+  const dr = openDrawer(`<form class="drawer-body" id="lg-form"><div class="drawer-title"><h2>${isNew ? 'New league' : 'Edit ' + esc(l.name)}</h2></div>
+    <div class="form-grid">
+      <label class="field span-2"><span>Name</span><input name="name" required value="${esc(l.name)}" placeholder="For example Harbor City League"></label>
+      <label class="field"><span>Sport</span><select name="sport">${sports.map((s) => `<option${s === l.sport ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></label>
+      <label class="field"><span>Region</span><input name="region" value="${esc(l.region)}" placeholder="For example Europe"></label>
+      <label class="field span-2"><span>Tagline</span><textarea name="tagline" rows="2">${esc(l.tagline)}</textarea></label>
+      <fieldset class="span-2 colors"><legend>Colors</legend>
+        ${l.colors.map((c, i) => `<label class="color-field"><input type="color" name="c${i}" value="${esc(c)}"><span>${['Main', 'Second', 'Accent'][i]}</span></label>`).join('')}</fieldset>
+    </div>
+    <div class="drawer-actions"><button class="btn btn-primary" type="submit">${isNew ? 'Add league' : 'Save league'}</button>
+      ${isNew ? '' : '<button class="btn btn-danger-ghost" type="button" id="lg-del">Delete league</button>'}</div></form>`);
+  const form = dr.querySelector('#lg-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(form));
+    if (!fd.name.trim()) { toast('Give the league a name.', 'err'); return; }
+    const key = isNew ? fd.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : l.key;
+    if (isNew && leagues.some((x) => x.key === key)) { toast('A league with that name already exists.', 'err'); return; }
+    busy(e.submitter, async () => {
+      await post('/api/admin/leagues/' + encodeURIComponent(key), { name: fd.name, sport: fd.sport, region: fd.region, tagline: fd.tagline, colors: [fd.c0, fd.c1, fd.c2] });
+      toast(isNew ? 'League added' : 'League saved'); closeDrawer(); await load();
+    });
   });
-  const cats = ["All", ...new Set(items.map((p) => p.category))];
-  $("#lg-cats").innerHTML = cats.map((c, i) => `<button class="chip${i ? "" : " on"}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
-  const draw = (c) => renderCards($("#lg-grid"), items.filter((p) => c === "All" || p.category === c));
-  $("#lg-cats").addEventListener("click", (e) => { const b = e.target.closest("[data-c]"); if (!b) return; $$("#lg-cats .chip").forEach((x) => x.classList.toggle("on", x === b)); draw(b.dataset.c); });
-  draw("All");
+  dr.querySelector('#lg-del')?.addEventListener('click', async (e) => {
+    if (!await confirmBox(`Delete ${l.name}? Its products stay in your store, they just will not belong to a league anymore.`, { ok: 'Delete league', danger: true })) return;
+    busy(e.currentTarget, async () => {
+      await post('/api/admin/leagues/' + encodeURIComponent(l.key), { delete: true });
+      toast('League deleted'); closeDrawer(); await load();
+    });
+  });
 }
