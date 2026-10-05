@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#04282e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 5v8.5C28 23 22.6 28.4 16 30 9.4 28.4 4 23 4 15.5V7z' fill='%23c8f53c' stroke='%2304282e' stroke-width='1.5'/%3E%3Cpath d='M11 11h10l-2 3h-5l-1 2h5l-3 6h-3l2-4h-4z' fill='%2304282e'/%3E%3C/svg%3E">
+<link rel="preload" href="/fonts/anton-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/site.css?v=6">
+<script type="importmap">{"imports":{"three":"/vendor/three/three.module.js","three/addons/":"/vendor/three/addons/"}}</script>
+<title>SquadForge | Custom Team Kits, Match Balls and Gear in 3D</title>
+<meta name="description" content="Design custom jerseys, cleats, socks, caps and match balls in a live 3D studio. Your colors, name and number, made to order. Team orders save up to 20%.">
+<meta property="og:title" content="SquadForge | Custom kits in 3D">
+<meta property="og:description" content="Design it in 3D, wear it on game day. Custom kits and gear, made to order.">
+</head>
+<body data-page="home">
+<div id="site-header"></div>
+
+<section class="hero">
+  <div class="wrap in">
+    <div>
+      <span class="eyebrow" id="hero-eyebrow">Season 2026 collections</span>
+      <h1 id="hero-h1">Forged for game day</h1>
+      <p class="lead" id="hero-sub">Custom kits, match balls and gear for every sport you play. Your colors, your name, your number. Made to order.</p>
+      <div class="cta">
+        <a class="btn btn-lime" href="/shop.html">Shop all gear</a>
+        <a class="btn btn-ghost" id="hero-use" href="/design.html">Customize this one</a>
+      </div>
+      <div class="stats"><div><b id="st-n">400+</b>designs ready</div><div><b>22</b>league collections</div><div><b>20%</b>team savings</div></div>
+    </div>
+    <div class="stage">
+      <div class="hero-shapes" id="hero-shapes" role="group" aria-label="Preview item"></div>
+      <div class="glow"></div>
+      <div class="v3d" id="hero-3d" aria-label="Interactive 3D preview. Drag to spin."></div>
+      <div class="swatches" id="hero-sw" role="group" aria-label="Colorways"></div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="sec-head"><div><h2>Trending now</h2><p>What teams are ordering this week.</p></div>
+      <div class="rail-nav"><button type="button" data-rail="trend" data-dir="-1" aria-label="Previous">&larr;</button><button type="button" data-rail="trend" data-dir="1" aria-label="Next">&rarr;</button></div></div>
+    <div class="rail" id="trend"></div>
+  </div>
+</section>
+
+<section class="block dark">
+  <div class="wrap">
+    <div class="sec-head"><div><h2>League collections</h2><p>Original kits in the colors of the competitions you follow.</p></div><a class="btn btn-ghost btn-sm" href="/leagues.html">All leagues</a></div>
+    <div class="chips" id="lg-sports"></div>
+    <div class="rail" id="lg-rail" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<section class="block" id="deals-wrap" hidden>
+  <div class="wrap">
+    <div class="sec-head"><div><h2>Flash deals</h2><p>Gone when the clock hits zero.</p></div><a class="link" href="/shop.html?deals=1">All deals</a></div>
+    <div class="grid" id="deals"></div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="sec-head"><div><h2>Shop by gear</h2></div></div>
+    <div class="tiles" id="tiles"></div>
+  </div>
+</section>
+
+<section class="block tight">
+  <div class="wrap">
+    <div class="sec-head"><div><h2>Just dropped</h2></div><a class="link" href="/shop.html?sort=new">Shop new</a></div>
+    <div class="grid" id="fresh"></div>
+  </div>
+</section>
+
+<section class="block" id="team">
+  <div class="wrap">
+    <div class="squad reveal">
+      <div>
+        <h2>One kit.<br>The whole squad.</h2>
+        <p>Pick a design, paste your roster, and every player gets their own name, number and size. The more you order, the more you save.</p>
+        <div class="tiers" id="tiers"></div>
+        <a class="btn btn-ink" id="team-cta" href="/design.html?team=1">Start a team order &rarr;</a>
+      </div>
+      <div class="squad-row" id="squad-row"></div>
+    </div>
+  </div>
+</section>
+
+<section class="block tight" id="recent-wrap" hidden>
+  <div class="wrap"><h3>Recently viewed</h3><div class="recent-strip" id="recent"></div></div>
+</section>
+
+<section class="block tight">
+  <div class="wrap">
+    <div class="perks reveal">
+      <div class="perk"><i><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></i><div><b>Free shipping</b><span id="perk-ship">On orders over $80</span></div></div>
+      <div class="perk"><i><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Printed right</b><span>Or we remake it free</span></div></div>
+      <div class="perk"><i><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4"/></svg></i><div><b>Live 3D studio</b><span>See it before we make it</span></div></div>
+      <div class="perk"><i><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></i><div><b>Pay your way</b><span>Card, PayPal, Cash App, crypto</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script type="module" src="/js/home.js?v=6"></script>
+</body>
+</html>

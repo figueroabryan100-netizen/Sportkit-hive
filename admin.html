@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Store admin | SquadForge</title>
+<meta name="theme-color" content="#04282e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 5v8.5C28 23 22.6 28.4 16 30 9.4 28.4 4 23 4 15.5V7z' fill='%23c8f53c' stroke='%2304282e' stroke-width='1.5'/%3E%3Cpath d='M11 11h10l-2 3h-5l-1 2h5l-3 6h-3l2-4h-4z' fill='%2304282e'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/admin.css?v=6">
+<script type="importmap">{"imports":{"three":"/vendor/three/three.module.js","three/addons/":"/vendor/three/addons/"}}</script>
+<script type="module" src="/js/admin/app.js?v=6"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="auth" class="auth" hidden>
+  <form id="auth-form" class="auth-card" novalidate>
+    <div class="brand brand-lg"><span class="brand-mark" aria-hidden="true">SF</span><span>SquadForge</span></div>
+    <h1 id="auth-title">Sign in</h1>
+    <p id="auth-sub" class="muted">Enter your owner password to manage your store.</p>
+    <label class="field"><span>Password</span>
+      <input type="password" id="auth-pw" autocomplete="current-password" required minlength="8"></label>
+    <label class="field" id="auth-pw2-wrap" hidden><span>Type it again</span>
+      <input type="password" id="auth-pw2" autocomplete="new-password" minlength="8"></label>
+    <p id="auth-err" class="form-err" role="alert"></p>
+    <button class="btn btn-primary btn-block" id="auth-btn" type="submit">Sign in</button>
+    <p class="muted small"><a href="/">Back to the store</a></p>
+  </form>
+</div>
+
+<div id="shell" class="shell" hidden>
+  <nav class="side" aria-label="Admin sections">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">SF</span><span class="brand-name">SquadForge</span></div>
+    <ul id="nav" class="nav"></ul>
+    <div class="side-foot">
+      <a class="side-link" href="/" target="_blank" rel="noopener">View store</a>
+      <button class="side-link" id="signout" type="button">Sign out</button>
+    </div>
+  </nav>
+  <main id="main" class="main" tabindex="-1"></main>
+</div>
+
+<div id="drawer-root"></div>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<div id="print-root" class="print-root"></div>
+</body>
+</html>
