@@ -1,0 +1,5 @@
+fastapi>=0.115
+uvicorn>=0.32
+# Needed for the admin photo upload (multipart form). FastAPI fails at import time without it when a route uses Form or
+# request.form(), so it is listed even though nothing imports it by name.
+python-multipart>=0.0.9
