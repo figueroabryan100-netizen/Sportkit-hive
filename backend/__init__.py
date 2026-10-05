@@ -1,0 +1,1 @@
+"""SquadForge backend package."""
